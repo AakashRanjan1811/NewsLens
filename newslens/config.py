@@ -41,6 +41,8 @@ class Settings:
 
     # Verification: share of a claim's content words that must appear in the source
     support_overlap: float = field(default_factory=lambda: _f("SUPPORT_OVERLAP", 0.6))
+    # ...and at most this many of its content words may be missing from the source (paraphrase slack)
+    max_unmatched_words: int = field(default_factory=lambda: _i("MAX_UNMATCHED_WORDS", 2))
     min_corroborating_publishers: int = 2
     max_revisions: int = field(default_factory=lambda: _i("MAX_REVISIONS", 2))
 

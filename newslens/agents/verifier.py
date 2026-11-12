@@ -4,8 +4,9 @@ An article *supports* a claim only if
 1. every number in the claim appears in the article (catches altered figures),
 2. every capitalised name in the claim appears in the article (catches swapped
    companies, places, people), and
-3. most of the claim's content words appear in the article (catches invented
-   statements).
+3. most of the claim's content words appear in the article, and at most
+   ``max_unmatched_words`` are missing (catches invented statements while
+   allowing light paraphrase).
 
 Claims are then labelled:
 - corroborated  : supported by >= 2 distinct publishers
@@ -59,7 +60,8 @@ def names(text: str) -> tuple[set[str], set[str]]:
     return mid, initial
 
 
-def support_check(claim: str, article_text: str, min_overlap: float) -> tuple[bool, str]:
+def support_check(claim: str, article_text: str, min_overlap: float,
+                  max_unmatched: int = 2) -> tuple[bool, str]:
     missing_nums = numbers(claim) - numbers(article_text)
     if missing_nums:
         return False, f"numbers not in source: {sorted(missing_nums)}"
@@ -71,9 +73,12 @@ def support_check(claim: str, article_text: str, min_overlap: float) -> tuple[bo
     words = content_words(claim)
     if not words:
         return False, "claim has no content words"
-    overlap = len(words & content_words(article_text)) / len(words)
+    unmatched = words - content_words(article_text)
+    overlap = 1 - len(unmatched) / len(words)
     if overlap < min_overlap:
         return False, f"only {overlap:.0%} of claim words in source"
+    if len(unmatched) > max_unmatched:
+        return False, f"words not in source: {sorted(unmatched)}"
     return True, f"{overlap:.0%} word overlap"
 
 
@@ -91,7 +96,8 @@ def verify_claims(output: AnalystOutput, stories: list[Story], articles: dict[st
             candidates = list(dict.fromkeys(cited + story.article_ids))
             supporting, reasons = [], []
             for a_id in candidates:
-                ok, why = support_check(claim.text, articles[a_id].text, settings.support_overlap)
+                ok, why = support_check(claim.text, articles[a_id].text, settings.support_overlap,
+                                        settings.max_unmatched_words)
                 if ok:
                     supporting.append(a_id)
                 elif a_id in cited:
