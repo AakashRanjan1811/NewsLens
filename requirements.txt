@@ -1,0 +1,13 @@
+# Tested with Python 3.11-3.13. Versions in comments are the ones verified locally.
+langgraph>=1.0,<2            # 1.2.21
+langchain-core>=1.0,<2       # 1.8.0
+langchain-groq>=1.0,<2       # 1.1.3
+langchain-ollama>=1.0,<2     # 1.1.0
+pydantic>=2.7,<3             # 2.13.5
+scikit-learn>=1.4            # 1.9.1
+numpy>=1.26                  # 2.5.3
+pandas>=2.1                  # 3.0.5
+httpx>=0.27                  # 0.28.1
+streamlit>=1.40              # 1.67.0
+plotly>=5.20                 # 7.1.0
+python-dotenv>=1.0           # 1.2.3

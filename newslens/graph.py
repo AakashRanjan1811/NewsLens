@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import operator
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated, TypedDict
 
 from langgraph.graph import END, START, StateGraph
@@ -54,7 +54,7 @@ class LensContext:
 
 
 def _audit(agent: str, event: str, detail: str = "") -> list[dict]:
-    return [{"at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "agent": agent,
+    return [{"at": datetime.now(UTC).isoformat(timespec="seconds"), "agent": agent,
              "event": event, "detail": detail}]
 
 
@@ -152,7 +152,8 @@ def build_graph(ctx: LensContext):
                        state.get("issues") if revising else None)
         revisions = state.get("revisions", 0) + (1 if revising else 0)
         return {"briefing": b.model_dump(), "revisions": revisions,
-                "audit": _audit("writer", f"revision {revisions}" if revising else "draft", f"{len(b.bullets)} bullets")}
+                "audit": _audit("writer", f"revision {revisions}" if revising else "draft",
+                                f"{len(b.bullets)} bullets")}
 
     @_guard
     def critic(state: LensState) -> dict:
